@@ -1,4 +1,17 @@
 import  express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
+// Connect to MongoDB
+mongoose
+.connect(process.env.MONGO)
+.then( () => {
+    console.log('Connected to MongoDB');
+})
+.catch((error) => {
+ console.log(error.message);
+});
 
 const app = express();
 
@@ -7,3 +20,4 @@ app.listen(3000, () => {
 }
 );
 
+ 
