@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaGoogle } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -8,16 +8,48 @@ export default function SignUp() {
     email: '',
     password: ''
   });
-
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(''); // 'success' or 'error'
+  const navigate = useNavigate();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    console.log(formData);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted', formData);
+    setLoading(true);
+    setMessage('');
+    setMessageType('');
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage('User added successfully!');
+        setMessageType('success');
+        setTimeout(() => {
+          navigate('/sign-in');
+        }, 1000);
+      } else {
+        setMessage(data.message || 'An error occurred. Please try again.');
+        setMessageType('error');
+      }
+    } catch (error) {
+      setMessage('An error occurred. Please try again.');
+      setMessageType('error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -70,8 +102,9 @@ export default function SignUp() {
           <button
             type="submit"
             className="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            disabled={loading}
           >
-            SIGN UP
+            {loading ? 'Signing Up...' : 'SIGN UP'}
           </button>
         </form>
         <div className="mt-6">
@@ -82,6 +115,11 @@ export default function SignUp() {
             <FaGoogle className="mr-2" /> CONTINUE WITH GOOGLE
           </button>
         </div>
+        {message && (
+          <div className={`mt-6 text-center text-sm ${messageType === 'error' ? 'text-red-500' : 'text-green-500'}`}>
+            {message}
+          </div>
+        )}
         <p className="mt-6 text-center text-sm text-gray-600">
           Have an account?{' '}
           <Link to="/sign-in" className="text-blue-500 hover:text-blue-700 font-semibold">
