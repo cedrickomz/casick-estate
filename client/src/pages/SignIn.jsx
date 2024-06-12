@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { FaGoogle } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUser, setError, setLoading } from '../redux/user/userSlice.js';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // 'success' or 'error'
+  const loading = useSelector((state) => state.user.loading);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,7 +22,7 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    dispatch(setLoading(true));
     setMessage('');
     setMessageType('');
     try {
@@ -34,20 +37,23 @@ export default function SignIn() {
       const data = await res.json();
 
       if (res.ok) {
+        dispatch(setUser(data.user));
         setMessage('User logged in successfully!');
         setMessageType('success');
         setTimeout(() => {
           navigate('/profile'); // Navigate to profile page on success
         }, 1000);
       } else {
+        dispatch(setError(data.message || 'An error occurred. Please try again.'));
         setMessage(data.message || 'An error occurred. Please try again.');
         setMessageType('error');
       }
     } catch (error) {
+      dispatch(setError('An error occurred. Please try again.'));
       setMessage('An error occurred. Please try again.');
       setMessageType('error');
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   };
 
@@ -106,7 +112,7 @@ export default function SignIn() {
           </div>
         )}
         <p className="mt-6 text-center text-sm text-gray-600">
-          Dont have an account?{' '}
+          Don't have an account?{' '}
           <Link to="/sign-up" className="text-blue-500 hover:text-blue-700 font-semibold">
             Sign up
           </Link>
