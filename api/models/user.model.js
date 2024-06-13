@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
 
+    avatar: {
+        type: String,
+        default: 'https://www.vecteezy.com/free-vector/avatar-placeholder'
+    },
+
+
 }, { timestamps: true   } );
 
 const User = mongoose.model('User', userSchema);

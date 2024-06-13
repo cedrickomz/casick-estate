@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { FaGoogle } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice.js';
+import OAuth from '../components/OAuth.jsx';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -11,7 +11,7 @@ export default function SignIn() {
   });
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // 'success' or 'error'
-  const loading = useSelector((state) => state.user.loading);
+  const loading = useSelector((state) => state.user.loading ?? null); // Ensure loading is initialized to null
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -95,15 +95,8 @@ export default function SignIn() {
           >
             {loading ? 'Signing In...' : 'SIGN IN'}
           </button>
+          <OAuth />
         </form>
-        <div className="mt-6">
-          <button
-            type="button"
-            className="w-full py-2 px-4 flex items-center justify-center bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-          >
-            <FaGoogle className="mr-2" /> CONTINUE WITH GOOGLE
-          </button>
-        </div>
         {message && (
           <div className={`mt-6 text-center text-sm ${messageType === 'error' ? 'text-red-500' : 'text-green-500'}`}>
             {message}
