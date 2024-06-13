@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FaGoogle } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser, setError, setLoading } from '../redux/user/userSlice.js';
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice.js';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -22,7 +22,7 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(setLoading(true));
+    dispatch(signInStart());
     setMessage('');
     setMessageType('');
     try {
@@ -37,23 +37,21 @@ export default function SignIn() {
       const data = await res.json();
 
       if (res.ok) {
-        dispatch(setUser(data.user));
+        dispatch(signInSuccess(data.user));
         setMessage('User logged in successfully!');
         setMessageType('success');
         setTimeout(() => {
-          navigate('/profile'); // Navigate to profile page on success
+          navigate('/'); // Navigate to profile page on success
         }, 1000);
       } else {
-        dispatch(setError(data.message || 'An error occurred. Please try again.'));
-        setMessage(data.message || 'An error occurred. Please try again.');
+        dispatch(signInFailure(data.message || 'Invalid email or password'));
+        setMessage(data.message || 'Invalid email or password');
         setMessageType('error');
       }
     } catch (error) {
-      dispatch(setError('An error occurred. Please try again.'));
+      dispatch(signInFailure('An error occurred. Please try again.'));
       setMessage('An error occurred. Please try again.');
       setMessageType('error');
-    } finally {
-      dispatch(setLoading(false));
     }
   };
 
